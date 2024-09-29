@@ -1,5 +1,3 @@
-# Mantine Vite template
+# How to run
 
-Get started with the template by clicking `Use this template` button on the top of the page.
-
-[Documentation](https://mantine.dev/guides/vite/)
+After cloning this repository, you can `cd` into it and run `npm install` to install the dependencies. After that do `npm run dev` to start the localhost.
