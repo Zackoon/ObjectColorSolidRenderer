@@ -12,9 +12,10 @@ export default function GraphDisplay({ height }: GraphDisplayProps) {
             align="flex-start" 
             direction="column" 
             justify="space-between" 
-            style={{ height: '100%' }}
+            style={{ height: '100%', maxHeight: height }}
+            gap = 'md'
         >
-            <SpectraGraph height={height/2.1}></SpectraGraph>
+            <SpectraGraph height={height/2}></SpectraGraph>
             <SpectraInputs height={height/2}></SpectraInputs>
         </Flex>
     )

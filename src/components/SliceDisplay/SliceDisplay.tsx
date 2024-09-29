@@ -14,10 +14,11 @@ export default function SliceDisplay({ height }: SliceDisplayProps) {
             align="flex-start" 
             direction="column" 
             justify="space-between" 
-            style={{ height: '100%' }}
+            style={{ height: '100%', maxHeight: height }}
+            gap = 'md'
         >
-            <SliceSelector height={height/2.5}></SliceSelector>
-            <Slice height={height/1.8}></Slice>
+            <SliceSelector height={height/2}></SliceSelector>
+            <Slice height={height/2}></Slice>
         </Flex>
     )
 }
