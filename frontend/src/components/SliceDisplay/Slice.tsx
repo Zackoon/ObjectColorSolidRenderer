@@ -5,6 +5,7 @@ interface GraphDisplayProps {
 }
 
 export default function GraphDisplay({ height }: GraphDisplayProps) {
+    
     return (
         <Skeleton height={height}>
 
