@@ -45,7 +45,7 @@ function CustomMesh() {
 
   useFrame(() => {
     if (objRef.current) {
-      objRef.current.rotation.y += 0.01;
+      objRef.current.rotation.y += 10;
       material.uniforms.color.value.setHSL(clock.getElapsedTime() % 1, 1, 0.5);
     }
   });
