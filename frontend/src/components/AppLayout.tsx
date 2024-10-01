@@ -33,6 +33,19 @@ export default function AppLayout() {
     //     .then((data) => console.log(data))
     //     .catch((error) => console.error('Error:', error))
     // );
+
+    const params = new URLSearchParams({
+        start: '10',
+        end: '20',
+      });
+      
+    console.log(
+        fetch(`/ocs/range?${params.toString()}`)
+        .then((response) => response.json())
+        .then((data) => console.log(data))
+        .catch((error) => console.error('Error:', error))
+    );
+
     return (
         <>
             <AppShell
