@@ -1,70 +1,71 @@
-import React, { useRef, useMemo } from 'react';
-import { Canvas, useFrame, useLoader, extend, useThree } from '@react-three/fiber';
+import React, { useRef, useEffect, useState } from 'react';
+import { Canvas, useFrame, extend, useThree } from '@react-three/fiber';
 import { OrbitControls, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-
-const vertexShader = `
-  varying vec2 vUv;
-  varying vec3 vNormal;
-  void main() {
-    vUv = uv;
-    vNormal = normal;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
-
-const fragmentShader = `
-  uniform vec3 color;
-  varying vec2 vUv;
-  varying vec3 vNormal;
-  void main() {
-    vec3 light = vec3(0.5, 0.2, 1.0);
-    light = normalize(light);
-    float dProd = max(0.0, dot(vNormal, light));
-    gl_FragColor = vec4(color * dProd, 1.0);
-  }
-`;
 
 const CustomShaderMaterial = shaderMaterial(
-  { color: new THREE.Color(0xff00ff) },
-  vertexShader,
-  fragmentShader
+  { color: new THREE.Color(0xff00ff) }, // Default color
+  '', // Placeholder for dynamic vertex shader
+  ''  // Placeholder for dynamic fragment shader
 );
 
 extend({ CustomShaderMaterial });
 
-function CustomMesh() {
-  const objRef = useRef();
-  const obj = useLoader(OBJLoader, '../../../res/teapot.obj');
+function CustomMesh({ geometry, vertexShader, fragmentShader }) {
+  const meshRef = useRef();
   const { clock } = useThree();
 
-  const material = useMemo(() => {
-    return new CustomShaderMaterial();
-  }, []);
+  // Create custom material and apply the shaders
+  const material = new CustomShaderMaterial();
+  material.vertexShader = vertexShader;
+  material.fragmentShader = fragmentShader;
 
   useFrame(() => {
-    if (objRef.current) {
-      objRef.current.rotation.y += 10;
+    if (meshRef.current) {
+      meshRef.current.rotation.y += 0.01;
+      // Animate color over time
       material.uniforms.color.value.setHSL(clock.getElapsedTime() % 1, 1, 0.5);
     }
   });
 
-  // Clone the geometry to ensure it's not shared
-  const geometry = useMemo(() => obj.children[0].geometry.clone(), [obj]);
-
-  return (
-    <mesh ref={objRef} scale={0.5} geometry={geometry} material={material} />
-  );
+  return <mesh ref={meshRef} scale={0.5} geometry={geometry} material={material} />;
 }
 
 export default function App() {
+  const [teapotData, setTeapotData] = useState(null);
+
+  useEffect(() => {
+    // Fetch 3D model data from Flask backend
+    fetch('http://localhost:5000/get_teapot_data')
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch data');
+        return response.json();
+      })
+      .then(data => {
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(data.vertices.flat(), 3));
+        geometry.setAttribute('normal', new THREE.Float32BufferAttribute(data.normals.flat(), 3));
+        geometry.setIndex(data.faces.flat());
+
+        setTeapotData({
+          geometry,
+          vertexShader: data.vertexShader,
+          fragmentShader: data.fragmentShader
+        });
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  }, []);
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
-        <React.Suspense fallback={null}>
-          <CustomMesh />
-        </React.Suspense>
+        {teapotData && (
+          <CustomMesh 
+            geometry={teapotData.geometry}
+            vertexShader={teapotData.vertexShader}
+            fragmentShader={teapotData.fragmentShader}
+          />
+        )}
         <OrbitControls />
         <axesHelper args={[5]} />
       </Canvas>

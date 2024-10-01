@@ -34,6 +34,7 @@ export default function AppLayout() {
     //     .catch((error) => console.error('Error:', error))
     // );
 
+    /*
     const params = new URLSearchParams({
         start: '10',
         end: '20',
@@ -45,7 +46,8 @@ export default function AppLayout() {
         .then((data) => console.log(data))
         .catch((error) => console.error('Error:', error))
     );
-
+    */
+   
     return (
         <>
             <AppShell
