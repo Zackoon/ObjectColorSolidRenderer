@@ -27,6 +27,12 @@ const useWindowDimensions = () => {
 export default function AppLayout() {
     const { width: _width, height }  = useWindowDimensions();
     const theme = useMantineTheme();
+    // console.log(
+    //     fetch('/ocs/helloworld')
+    //     .then((response) => response.json())
+    //     .then((data) => console.log(data))
+    //     .catch((error) => console.error('Error:', error))
+    // );
     return (
         <>
             <AppShell
