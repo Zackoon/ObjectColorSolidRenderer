@@ -1,21 +1,24 @@
 import { Stack, Skeleton, Popover, Button, ActionIcon, Center, Collapse, Paper, rgba } from "@mantine/core";
 import { useState } from "react";
-import { ChevronUp, ChevronDown } from 'tabler-icons-react';
+import { ChevronLeft, ChevronRight} from 'tabler-icons-react';
 
 interface GraphDisplayProps {
     height: number
 }
 
+const boxStyle = {
+    margin: 10,
+    padding: 5,
+};
+
 export default function GraphDisplay({ height }: GraphDisplayProps) {
     const [opened, setOpened] = useState(false);
 
     return (
-        // <Skeleton height={height}>
         <div>
-            {/* Floating Toggle Button */}
             <ActionIcon
                 size={30}
-                radius="xl"
+                radius="s"
                 color="gray"
                 variant="filled"
                 style={{
@@ -24,51 +27,46 @@ export default function GraphDisplay({ height }: GraphDisplayProps) {
                 }}
                 onClick={() => setOpened((open) => !open)}
             >
-                {opened ? <ChevronDown size={30} /> : <ChevronUp size={30} />}
+                {opened ? <ChevronLeft size={30} /> : <ChevronRight size={30} />}
             </ActionIcon>
 
             {/* Circular Floating Control Panel */}
             <Paper
                 shadow="xl"
-                // padding="md"
                 style={{
-                    width: opened ? 200 : 0, // Change width based on state
-                    height: 60, // Fixed height for the circle effect
-                    borderRadius: 30, // Full circular shape
+                    width: opened ? 200 : 0, // Collapses the 
+                    borderRadius: 10, // Full circular shape
                     zIndex: 9999,
                     transition: 'width 0.3s ease',
                     backgroundColor: rgba("239, 239, 240", 0.2),
                 }}
             >
                 <Collapse in={opened}>
-                <Center style={{ height: 60 }}> {/* Center content vertically */}
-                    <Button
-                    // compact
-                    variant="white"
-                    onClick={() => alert('Action 1')}
-                    style={{ marginRight: 5 }}
-                    >
-                    A1
-                    </Button>
-                    <Button
-                    // compact
-                    variant="white"
-                    onClick={() => alert('Action 2')}
-                    style={{ marginRight: 5 }}
-                    >
-                    A2
-                    </Button>
-                    <Button
-                    // compact
-                    variant="white"
-                    onClick={() => alert('Action 3')}
-                    >
-                    A3
-                    </Button>
-                </Center>
+                    <Stack gap="m">
+                        <Button
+                            variant="white"
+                            onClick={() => alert('Action 1')}
+                            style={boxStyle}
+                        >
+                            1D
+                        </Button>
+                        <Button
+                            variant="white"
+                            onClick={() => alert('Action 2')}
+                            style={boxStyle}
+                        >
+                            2D
+                        </Button>
+                        <Button
+                            variant="white"
+                            onClick={() => alert('Action 3')}
+                            style={boxStyle}
+                        >
+                            3D
+                        </Button>
+                    </Stack>
                 </Collapse>
             </Paper>
         </div>
-        // </Skeleton>
     )
 }
