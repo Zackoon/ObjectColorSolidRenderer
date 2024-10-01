@@ -12,7 +12,7 @@ An object color solid renderer built with React and TypeScript, using Vite as th
 
 1. **Clone the Repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ZackooObjectColorSolidRenderer
    cd ObjectColorSolidRenderer
    ```
 
@@ -28,7 +28,7 @@ An object color solid renderer built with React and TypeScript, using Vite as th
      ```
    - Install Python dependencies:
      ```bash
-     pip install flask flask-cors
+     pip install flask flask-cors numpy pywavefron PyWavefront
      ```
    - Run the Flask app:
      ```bash
@@ -42,11 +42,11 @@ An object color solid renderer built with React and TypeScript, using Vite as th
      ```
    - Install Node.js dependencies:
      ```bash
-     yarn install  # or npm install
+     npm install # or yarn install
      ```
    - Start the development server:
      ```bash
-     yarn dev  # or npm run dev
+     npm run dev # yarn dev
      ```
 
 ### Accessing the Application
