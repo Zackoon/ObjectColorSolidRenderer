@@ -31,7 +31,7 @@ function CustomMesh({ geometry, vertexShader, fragmentShader }) {
   return <mesh ref={meshRef} scale={0.5} geometry={geometry} material={material} />;
 }
 
-export default function App() {
+export default function ObjectColorSolid() {
   const [teapotData, setTeapotData] = useState(null);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
+    <div style={{ width: '100vh', height: '100vh' }}>
       <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
         {teapotData && (
           <CustomMesh 

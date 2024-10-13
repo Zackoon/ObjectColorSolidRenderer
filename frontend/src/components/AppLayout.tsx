@@ -48,37 +48,59 @@ export default function AppLayout() {
     
     return (
         <>
-            <AppShell
-                header={{ height: 50, }}
-                padding="sm"
+          <AppShell
+            header={{ height: 50 }}
+            padding="sm"
+          >
+            {/* Header Section */}
+            <AppShell.Header
+              style={{
+                backgroundColor: theme.colors.myColor[7],
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+              }}
             >
-                <AppShell.Header
-                    style={{
-                        backgroundColor: theme.colors.myColor[7],
-                        color: "white",
+              <Title order={3} ml="lg"> Object Color Solid Renderer </Title>
+            </AppShell.Header>
+    
+            {/* Main Content Section */}
+            <AppShell.Main >
+              <Container my="xl" fluid>
+                <Grid>
+                  {/* Left Sidebar */}
+                  <Grid.Col span={3}>
+                    <SliceDisplay height={height} />
+                  </Grid.Col>
+    
+                  {/* Centered ObjectColorSolid Component with Absolute Positioning */}
+                  <Grid.Col span={6} style={{ position: 'relative' }}>
+                    {/* Absolute Positioned Wrapper */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '100%',
+                        height: '100%',
                         display: 'flex',
-                        alignItems: 'center'
-                    }}
-                >
-                    <Title order={3} ml="lg"> Object Color Solid Renderer </Title>
-                </AppShell.Header>
-                <AppShell.Main>
-                    <Container my="xl" fluid>
-                        <Grid>
-                            <Grid.Col span={3}>
-                                <SliceDisplay height={height}></SliceDisplay>
-                            </Grid.Col>
-                            <Grid.Col span={6}>
-                                <ObjectColorSolid height={height}></ObjectColorSolid>
-                            </Grid.Col>
-                            <Grid.Col span={3}>
-                                <GraphDisplay height={height}></GraphDisplay>
-                            </Grid.Col>
-                        </Grid>
-                    </Container>
-                </AppShell.Main>
-            </AppShell>
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <ObjectColorSolid />
+                    </div>
+                  </Grid.Col>
+    
+                  {/* Right Sidebar */}
+                  <Grid.Col span={3}>
+                    <GraphDisplay height={height} />
+                  </Grid.Col>
+                </Grid>
+              </Container>
+            </AppShell.Main>
+          </AppShell>
         </>
-
     );
 }
