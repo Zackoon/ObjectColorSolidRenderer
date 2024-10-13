@@ -28,11 +28,7 @@ An object color solid renderer built with React and TypeScript, using Vite as th
      ```
    - Install Python dependencies:
      ```bash
-<<<<<<< HEAD
      pip install Flask Flask-Cors numpy PyWavefront
-=======
-     pip install Flask Flask-Cors numpy pywavefron PyWavefront
->>>>>>> dff0e9d7469c1c292d1ddd14265f15c1afa2b826
      ```
    - Run the Flask app:
      ```bash
