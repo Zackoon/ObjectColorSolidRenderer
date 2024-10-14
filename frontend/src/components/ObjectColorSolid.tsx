@@ -4,7 +4,7 @@ import { OrbitControls, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 
 const CustomShaderMaterial = shaderMaterial(
-  { color: new THREE.Color(0xff00ff) }, // Default color
+  { col: new THREE.Color(0xff00ff) }, // Default color
   '', // Placeholder for dynamic vertex shader
   ''  // Placeholder for dynamic fragment shader
 );
@@ -24,7 +24,7 @@ function CustomMesh({ geometry, vertexShader, fragmentShader }) {
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.01;
       // Animate color over time
-      material.uniforms.color.value.setHSL(clock.getElapsedTime() % 1, 1, 0.5);
+      material.uniforms.col.value.setHSL(clock.getElapsedTime() % 1, 1, 0.5);
     }
   });
 
@@ -36,7 +36,7 @@ export default function ObjectColorSolid() {
 
   useEffect(() => {
     // Fetch 3D model data from Flask backend
-    fetch('http://localhost:5000/get_teapot_data')
+    fetch('http://localhost:5000/get_ocs_data') // change to get_teapot_data for teapot
       .then(response => {
         if (!response.ok) throw new Error('Failed to fetch data');
         return response.json();
@@ -45,7 +45,8 @@ export default function ObjectColorSolid() {
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(data.vertices.flat(), 3));
         geometry.setAttribute('normal', new THREE.Float32BufferAttribute(data.normals.flat(), 3));
-        geometry.setIndex(data.faces.flat());
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(data.colors.flat(), 3));
+        geometry.setIndex(data.indices.flat());
 
         setTeapotData({
           geometry,
@@ -58,7 +59,7 @@ export default function ObjectColorSolid() {
 
   return (
     <div style={{ width: '100vh', height: '100vh' }}>
-      <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+      <Canvas camera={{ position: [0, 0, 5], fov: 60 }}>
         {teapotData && (
           <CustomMesh 
             geometry={teapotData.geometry}
