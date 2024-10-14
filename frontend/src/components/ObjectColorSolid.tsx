@@ -22,8 +22,8 @@ function CustomMesh({ geometry, vertexShader, fragmentShader }) {
 
   useFrame(() => {
     if (meshRef.current) {
-      meshRef.current.rotation.y += 0.01;
       // Animate color over time
+      //meshRef.current.rotation.y += 0.01;
       material.uniforms.col.value.setHSL(clock.getElapsedTime() % 1, 1, 0.5);
     }
   });
@@ -42,11 +42,14 @@ export default function ObjectColorSolid() {
         return response.json();
       })
       .then(data => {
+
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(data.vertices.flat(), 3));
         geometry.setAttribute('normal', new THREE.Float32BufferAttribute(data.normals.flat(), 3));
         geometry.setAttribute('color', new THREE.Float32BufferAttribute(data.colors.flat(), 3));
         geometry.setIndex(data.indices.flat());
+
+        geometry.translate(-0.5, -0.5, -0.5);
 
         setTeapotData({
           geometry,

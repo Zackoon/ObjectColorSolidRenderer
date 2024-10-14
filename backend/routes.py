@@ -16,6 +16,10 @@ def get_ocs_data():
     vertices, indices, colors = generate_OCS()
     normals = calculate_normals(vertices, indices)
 
+    colors = [0.7, 0.5, 0.3] * len(vertices)
+
+    # TODO, should be able to specify the model matrix here and pass to frontend
+
     return jsonify({
         'vertices': vertices,
         'indices': indices,
