@@ -3,7 +3,76 @@ from chromalab.spectra import Spectra
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-# %matplotlib widget
+#%matplotlib widget
+
+def quads_to_triangles(quads: np.ndarray) -> np.ndarray:
+    """
+    Convert an array of quads (n, 4, 3) to an array of triangles (2n, 3, 3).
+    
+    Parameters:
+    quads (np.ndarray): An array of shape (n, 4, 3) where n is the number of quads, 
+                        each quad has 4 vertices in 3D space.
+                        
+    Returns:
+    np.ndarray: An array of shape (2n, 3, 3) containing triangles formed from the quads.
+    """
+    # Ensure input is the correct shape
+    assert quads.shape[1:] == (4, 3), "Input array must have shape (n, 4, 3)"
+    
+    # Number of quads
+    n = quads.shape[0]
+    
+    # First triangle for each quad: [v0, v1, v2]
+    triangles_1 = quads[:, [0, 1, 2]]
+    
+    # Second triangle for each quad: [v0, v2, v3]
+    triangles_2 = quads[:, [0, 2, 3]]
+    
+    # Stack the two sets of triangles together along the first axis
+    triangles = np.vstack((triangles_1, triangles_2))
+    
+    return triangles
+
+import numpy as np
+
+def triangles_to_vertices_indices(triangles: np.ndarray):
+    """
+    Convert a list of triangles into a list of unique vertices and their indices.
+    
+    Parameters:
+    triangles (np.ndarray): An array of shape (n, 3, 3) where n is the number of triangles,
+                            each triangle has 3 vertices in 3D space.
+                            
+    Returns:
+    tuple: A tuple containing:
+        - vertices (np.ndarray): An array of unique vertices of shape (m, 3), where m is the number of unique vertices.
+        - indices (np.ndarray): An array of shape (n, 3) representing the indices of the triangles in the vertex list.
+    """
+    # Dictionary to store unique vertices and their corresponding indices
+    vertex_to_index = {}
+    vertices = []
+    indices = []
+
+    # Iterate through all triangles
+    for triangle in triangles:
+        triangle_indices = []
+        for vertex in triangle:
+            # Convert the vertex (numpy array) to a tuple so it can be used as a dictionary key
+            vertex_tuple = tuple(vertex)
+            if vertex_tuple not in vertex_to_index:
+                # Assign a new index if the vertex is not already in the dictionary
+                vertex_to_index[vertex_tuple] = len(vertices)
+                vertices.append(vertex_tuple)
+            # Append the index of the vertex for this triangle
+            triangle_indices.append(vertex_to_index[vertex_tuple])
+        # Append the triangle indices
+        indices.append(triangle_indices)
+    
+    # Convert the list of vertices and indices to numpy arrays
+    vertices = np.array(vertices)
+    indices = np.array(indices)
+    
+    return vertices, indices
 
 def generate_OCS():
     # Cone responses of a typical trichromat.
@@ -11,6 +80,7 @@ def generate_OCS():
 
     # Assumes an indicator reflectance function where R = 1 at a single wavelength and 0 elsewhere,
     # and an illumination 1 everywhere.
+    # This represents equations (9), (10), (11), (12), (13).
     points = np.vstack((standard_trichromat.sensors[0].data, 
                         standard_trichromat.sensors[1].data, 
                         standard_trichromat.sensors[2].data)).T
@@ -31,51 +101,31 @@ def generate_OCS():
             faces[((i - 1) * n) + j, 2] = vertices[i, (j + 1) % n]
             faces[((i - 1) * n) + j, 3] = vertices[i + 1, j]
 
-    # Convert quads to triangles
-    triangle_faces = []
-
-    for quad in faces:
-        tri1 = [quad[0], quad[1], quad[2]]
-        tri2 = [quad[0], quad[2], quad[3]]
-        triangle_faces.append(tri1)
-        triangle_faces.append(tri2)
-
-    triangle_faces = np.array(triangle_faces)
-
-    # Create unique vertices and indices
-    vertices_flat = triangle_faces.reshape(-1, 3)
-    unique_vertices, indices = np.unique(vertices_flat, axis=0, return_inverse=True)
-    triangle_indices = indices.reshape(-1, 3)
-
-    # Normalize unique_vertices to 0-1 range
-    min_coords = np.min(unique_vertices, axis=0)
-    max_coords = np.max(unique_vertices, axis=0)
-    range_coords = max_coords - min_coords
-
-    normalized_vertices = (unique_vertices - min_coords) / range_coords
-
-    # Compute colors per quad and assign to triangles
-    colors_per_quad = []
+    # The color of each face is a function of the coordinates of its center.
+    # TODO: This isn't an accurate representation of the solid's color at a point, need to find a more accurate representation.
+    colors = []
     max_x = np.max(faces[:, :, 0])
     max_y = np.max(faces[:, :, 1])
     max_z = np.max(faces[:, :, 2])
+    for face in faces:
+        r = np.mean(face[:, 0]) / max_x
+        g = np.mean(face[:, 1]) / max_y
+        b = np.mean(face[:, 2]) / max_z
+        colors.append([r, g, b])
 
-    for quad in faces:
-        r = np.mean(quad[:, 0]) / max_x
-        g = np.mean(quad[:, 1]) / max_y
-        b = np.mean(quad[:, 2]) / max_z
-        colors_per_quad.append([r, g, b])
+    tris = quads_to_triangles(faces)
+    vertices, indices = triangles_to_vertices_indices(tris)
+    
+    # Normalize vertices to [0, 1] range
+    min_coords = np.min(vertices, axis=0)
+    max_coords = np.max(vertices, axis=0)
+    range_coords = max_coords - min_coords
+    normalized_vertices = (vertices - min_coords) / range_coords
 
-    colors_per_triangle = []
-    for color in colors_per_quad:
-        colors_per_triangle.append(color)
-        colors_per_triangle.append(color)
+    # Ensure the colors array has enough values to match the number of vertices
+    if len(colors) < len(vertices):
+        num_missing_colors = len(vertices) - len(colors)
+        missing_colors = [[1.0, 0.0, 1.0]] * num_missing_colors  # Create a list of magenta [R, G, B] for missing colors
+        colors.extend(missing_colors)  # Extend the colors list with the missing colors
 
-    colors_per_triangle = np.array(colors_per_triangle)
-
-    print(normalized_vertices.shape)
-    print(triangle_indices.shape)
-    print(colors_per_triangle.shape)
-    print(np.max(colors_per_triangle), np.min(colors_per_triangle))
-
-    return normalized_vertices.tolist(), triangle_indices.tolist(), colors_per_triangle.tolist()
+    return normalized_vertices.tolist(), indices.tolist(), colors
