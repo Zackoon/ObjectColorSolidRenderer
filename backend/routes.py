@@ -1,6 +1,6 @@
 import numpy as np
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from model_utils import load_obj, calculate_normals
 from ocs_generator import generate_OCS
 from shaders import get_vertex_shader, get_fragment_shader
@@ -11,9 +11,10 @@ ocs_routes = Blueprint('ocs_routes', __name__)
 @ocs_routes.route('/get_ocs_data', methods=['GET'])
 def get_ocs_data():
     """Generate object color solid geometry, colors, normals, and return shaders"""
-
+    min_wavelength, max_wavelength = int(request.args.get('minWavelength')), int(request.args.get('maxWavelength'))
+    print(f"min: {min_wavelength}")
     print("generating ocs")
-    vertices, indices, colors = generate_OCS()
+    vertices, indices, colors = generate_OCS(min_wavelength, max_wavelength)
     normals = calculate_normals(vertices, indices)
 
     if (len(vertices) != len(colors)):

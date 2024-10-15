@@ -1,72 +1,107 @@
-import { Stack, Skeleton, ActionIcon, Button, Collapse, Paper, rgba } from "@mantine/core";
+import { Stack, Button, TextInput} from "@mantine/core";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "tabler-icons-react";
+import DropdownContent from "../Dropdown/DropdownContent";
+import DropdownButton from "../Dropdown/DropdownButton";
+import { DEFAULT_S_PEAK, DEFAULT_M_PEAK, DEFAULT_L_PEAK, useAppContext } from "../AppLayout";
 
-interface GraphDisplayProps {
-    height: number
-}
 
 const boxStyle = {
     margin: 10,
     padding: 5,
 };
 
-export default function GraphDisplay({ height }: GraphDisplayProps) {
-    const [opened, setOpened] = useState(false);
+
+
+export default function SpectraInputs() {
+    const [open, setOpen] = useState(false);
+    const { conePeaks, setConePeaks, submitSwitch, setSubmitSwitch, wavelengthBounds, setWavelengthBounds} = useAppContext()
+    const handleConeInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
+        setConePeaks({
+            ...conePeaks,
+            [name]: Number(value),
+        });
+
+    };
+
+    const handleBoundsInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
+        setWavelengthBounds({
+            ...wavelengthBounds,
+            [name]: Number(value),
+        });
+
+    };
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault(); // Prevent page reload
+        setSubmitSwitch(-1 * submitSwitch)
+        console.log('Form data:', conePeaks);
+        console.log(wavelengthBounds)
+        // You can send the form data to an API or process it here
+    };
 
     return (
         <div>
-            <ActionIcon
-                size={30}
-                radius="s"
-                color="gray"
-                variant="filled"
-                style={{
-                    zIndex: 9999,
-                    backgroundColor: rgba("239, 239, 240", 0.3),
-                }}
-                onClick={() => setOpened((open) => !open)}
-            >
-                {opened ? <ChevronLeft size={30} /> : <ChevronRight size={30} />}
-            </ActionIcon>
-
-            {/* Circular Floating Control Panel */}
-            <Paper
-                shadow="xl"
-                style={{
-                    width: opened ? 200 : 0, // Collapses the 
-                    borderRadius: 10, // Full circular shape
-                    zIndex: 9999,
-                    transition: 'width 0.3s ease',
-                    backgroundColor: rgba("239, 239, 240", 0.2),
-                }}
-            >
-                <Collapse in={opened}>
-                    <Stack gap="m">
-                        <Button
-                            variant="white"
-                            onClick={() => alert('Action 1')}
-                            style={boxStyle}
-                        >
-                            1D
-                        </Button>
-                        <Button
-                            variant="white"
-                            onClick={() => alert('Action 2')}
-                            style={boxStyle}
-                        >
-                            2D
-                        </Button>
-                        <Button
-                            variant="white"
-                            onClick={() => alert('Action 3')}
-                            style={boxStyle}
-                        >
-                            3D
-                        </Button>
-                    </Stack>
-                </Collapse>
-            </Paper>
+            <DropdownButton open={open} setOpen={setOpen} leftDropdown={false}></DropdownButton>
+            <DropdownContent open={open}>
+                <Stack gap="m">
+                <form onSubmit={handleSubmit}>
+                    {/* <TextInput
+                        label="S Cone Peak"
+                        placeholder={String(DEFAULT_S_PEAK)}
+                        name="sConePeak"
+                        type="number"
+                        value={conePeaks[0]}
+                        onChange={handleInputChange}
+                        // required
+                        mb="sm" // margin-bottom to space out elements
+                    />
+                    <TextInput
+                        label="M Cone Peak"
+                        placeholder={String(DEFAULT_M_PEAK)}
+                        name="mConePeak"
+                        type="number"
+                        value={conePeaks[1]}
+                        onChange={handleInputChange}
+                        // required
+                        mb="sm"
+                    />
+                    <TextInput
+                        label="L Cone Peak"
+                        placeholder={String(DEFAULT_L_PEAK)}
+                        name="lConePeak"
+                        type="number"
+                        value={conePeaks[2]}
+                        onChange={handleInputChange}
+                        // required
+                        mb="sm"
+                    /> */}
+                    <TextInput
+                        //label="Minimum Wavelength"
+                        placeholder={"Minium Wavelength"}
+                        name="min"
+                        type="number"
+                        value={wavelengthBounds.min}
+                        onChange={handleBoundsInputChange}
+                        required
+                        mb="sm"
+                    />
+                    <TextInput
+                        //label="Maximum Wavelength"
+                        placeholder={"Maximum Wavelength"}
+                        name="max"
+                        type="number"
+                        value={wavelengthBounds.max}
+                        onChange={handleBoundsInputChange}
+                        required
+                        mb="sm"
+                    />
+                    <Button type="submit" fullWidth>
+                        Submit
+                    </Button>
+                </form>
+                </Stack>
+            </DropdownContent>
         </div>
     )
 }

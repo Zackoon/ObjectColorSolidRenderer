@@ -3,12 +3,11 @@ import Slice from "./Slice";
 import SliceSelector from "./SliceSelector";
 import SpectraGraph from "../GraphDisplay/SpectraGraph";
 import SpectraInputs from "../GraphDisplay/SpectraInputs";
+import { useAppContext } from "../AppLayout";
 
-interface SliceDisplayProps  {
-    height: number
-}
 
-export default function SliceDisplay({ height }: SliceDisplayProps) {
+export default function SliceDisplay() {
+    const { height } = useAppContext()
     return (
         <Flex
             align="flex-start" 
@@ -17,8 +16,8 @@ export default function SliceDisplay({ height }: SliceDisplayProps) {
             style={{ height: height/1.25, maxHeight: height }}
             gap = 'md'
         >
-            <SliceSelector height={height/2}></SliceSelector>
-            <Slice height={height/2}></Slice>
+            <SliceSelector></SliceSelector>
+            <Slice></Slice>
         </Flex>
     )
 }

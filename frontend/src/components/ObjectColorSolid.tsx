@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame, extend, useThree } from '@react-three/fiber';
 import { OrbitControls, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
+import { useAppContext } from './AppLayout';
 
 const CustomShaderMaterial = shaderMaterial(
   { col: new THREE.Color(0xff00ff) }, // Default color
@@ -31,12 +32,33 @@ function CustomMesh({ geometry, vertexShader, fragmentShader }) {
   return <mesh ref={meshRef} scale={0.5} geometry={geometry} material={material} />;
 }
 
+type OcsData = {
+  geometry: THREE.BufferGeometry,
+  vertexShader: String,
+  fragmentShader: String,
+}
+
 export default function ObjectColorSolid() {
-  const [teapotData, setTeapotData] = useState(null);
+  const [ocsData, setOcsData] = useState<OcsData>({geometry: new THREE.BufferGeometry(), vertexShader: '', fragmentShader: ''});
+  const { conePeaks, setConePeaks, submitSwitch, setSubmitSwitch, wavelengthBounds, setWavelengthBounds } = useAppContext();
+
+      
+    // console.log(
+    //     fetch(`/ocs/range?${params.toString()}`)
+    //     .then((response) => response.json())
+    //     .then((data) => console.log(data))
+    //     .catch((error) => console.error('Error:', error))
+    // );
 
   useEffect(() => {
+    // Create search params
+    const params = new URLSearchParams({
+      minWavelength: wavelengthBounds.min,
+      maxWavelength: wavelengthBounds.max,
+    });
+
     // Fetch 3D model data from Flask backend
-    fetch('http://localhost:5000/get_ocs_data') // change to get_teapot_data for teapot
+    fetch(`http://localhost:5000/get_ocs_data?${params.toString()}`) // change to get_teapot_data for teapot
       .then(response => {
         if (!response.ok) throw new Error('Failed to fetch data');
         return response.json();
@@ -51,26 +73,27 @@ export default function ObjectColorSolid() {
 
         geometry.translate(-0.5, -0.5, -0.5);
 
-        setTeapotData({
+        setOcsData({
           geometry,
           vertexShader: data.vertexShader,
           fragmentShader: data.fragmentShader
         });
       })
       .catch(error => console.error('Error fetching data:', error));
-  }, []);
+  }, [submitSwitch]);
 
   return (
-    <div style={{ width: '100vh', height: '100vh' }}>
-      <Canvas camera={{ position: [0, 0, 5], fov: 60 }}>
-        {teapotData && (
+    <div style={{ width: '100%', height: '100%' }}>
+      <Canvas camera={{ position: [0.43, 0.3, 0.4], fov: 60 }}>
+        {ocsData && (
           <CustomMesh 
-            geometry={teapotData.geometry}
-            vertexShader={teapotData.vertexShader}
-            fragmentShader={teapotData.fragmentShader}
+            key={submitSwitch}
+            geometry={ocsData.geometry}
+            vertexShader={ocsData.vertexShader}
+            fragmentShader={ocsData.fragmentShader}
           />
         )}
-        <OrbitControls />
+        <OrbitControls target={[0, 0, 0]} />
         <axesHelper args={[5]} />
       </Canvas>
     </div>

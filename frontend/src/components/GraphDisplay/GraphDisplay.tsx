@@ -1,22 +1,24 @@
 import { Stack, Skeleton, Flex } from "@mantine/core";
 import SpectraGraph from "./SpectraGraph";
 import SpectraInputs from "./SpectraInputs";
+import { sub } from "three/webgpu";
+import { useAppContext } from "../AppLayout";
 
-interface GraphDisplayProps {
-    height: number
-}
 
-export default function GraphDisplay({ height }: GraphDisplayProps) {
+
+
+export default function GraphDisplay(){
+    const { height } = useAppContext()
     return (
         <Flex
-            align="flex-start" 
+            align="flex-end" 
             direction="column" 
             justify="space-between" 
             style={{ height: height/1.25, maxHeight: height }}
             gap = 'md'
         >
-            <SpectraGraph height={height/2}></SpectraGraph>
-            <SpectraInputs height={height/2}></SpectraInputs>
+            <SpectraGraph></SpectraGraph>
+            <SpectraInputs></SpectraInputs>
         </Flex>
     )
 }
