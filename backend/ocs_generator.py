@@ -74,7 +74,7 @@ def triangles_to_vertices_indices(triangles: np.ndarray):
     
     return vertices, indices
 
-def generate_OCS(min_wavelength: int, max_wavelength: int):
+def generate_OCS(min_wavelength: int, max_wavelength: int, response_file_name: str):
     # Cone responses of a typical trichromat.
     standard_trichromat = Observer.trichromat(np.arange(min_wavelength, max_wavelength + 1, 3))
 

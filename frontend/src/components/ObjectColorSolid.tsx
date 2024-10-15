@@ -38,13 +38,14 @@ type OcsData = {
 
 export default function ObjectColorSolid() {
   const [ocsData, setOcsData] = useState<OcsData>({geometry: new THREE.BufferGeometry(), vertexShader: '', fragmentShader: ''});
-  const { conePeaks, setConePeaks, submitSwitch, setSubmitSwitch, wavelengthBounds, setWavelengthBounds } = useAppContext();
+  const { conePeaks, submitSwitch, setSubmitSwitch, wavelengthBounds, responseFileName } = useAppContext();
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams({
       minWavelength: wavelengthBounds.min.toString(),
       maxWavelength: wavelengthBounds.max.toString(),
+      responseFileName: responseFileName,
     });
 
     fetch(`http://localhost:5000/get_ocs_data?${params.toString()}`)
@@ -67,7 +68,7 @@ export default function ObjectColorSolid() {
         });
       })
       .catch(error => console.error('Error fetching data:', error));
-  }, [submitSwitch, wavelengthBounds]);
+  }, [submitSwitch, wavelengthBounds, responseFileName]);
 
   const handleFileUpload = async () => {
     if (!file) {

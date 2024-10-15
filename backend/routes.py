@@ -38,10 +38,13 @@ def upload_file():
 @ocs_routes.route('/get_ocs_data', methods=['GET'])
 def get_ocs_data():
     """Generate object color solid geometry, colors, normals, and return shaders"""
-    min_wavelength, max_wavelength = int(request.args.get('minWavelength')), int(request.args.get('maxWavelength'))
+    min_wavelength, max_wavelength = int(request.args.get('minWavelength', 390)), int(request.args.get('maxWavelength', 700))
+    response_file_name = request.args.get('responseFileName', '')
+
     print(f"min: {min_wavelength}")
+    print(f"response file name: {response_file_name}")
     print("generating ocs")
-    vertices, indices, colors = generate_OCS(min_wavelength, max_wavelength)
+    vertices, indices, colors = generate_OCS(min_wavelength, max_wavelength, response_file_name)
     normals = calculate_normals(vertices, indices)
 
     if (len(vertices) != len(colors)):

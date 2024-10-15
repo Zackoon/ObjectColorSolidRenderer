@@ -108,8 +108,7 @@ const AppContextProvider = ({ children }: { children: ReactNode }) => {
       coneResponseType, setConeResponseType,
       submitSwitch, setSubmitSwitch,
       wavelengthBounds, setWavelengthBounds,
-      responseFileName, // **Added**
-      setResponseFileName, // **Added**
+      responseFileName, setResponseFileName, // **Added**
     }}>
       {children}
     </AppContext.Provider>
