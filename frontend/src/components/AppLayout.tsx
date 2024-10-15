@@ -71,6 +71,18 @@ type AppContextType = {
   }>>;
   responseFileName: string; // **Added**
   setResponseFileName: Dispatch<SetStateAction<string>>; // **Added**
+  coneResponses: {
+    sConeResponse: Array<number>;
+    mConeResponse: Array<number>;
+    lConeResponse: Array<number>;
+  };
+  setConeResponses: Dispatch<SetStateAction<{
+    sConeResponse: Array<number>;
+    mConeResponse: Array<number>;
+    lConeResponse: Array<number>;
+  }>>;
+  wavelengths: Array<number>;
+  setWavelengths: Dispatch<SetStateAction<Array<number>>>;
 };
 
 // **Updated AppContext to include responseFileName**
@@ -96,6 +108,12 @@ const AppContextProvider = ({ children }: { children: ReactNode }) => {
     min: MIN_VISIBLE_WAVELENGTH,
     max: MAX_VISIBLE_WAVELENGTH
   });
+  const [wavelengths, setWavelengths] = useState([0])
+  const [coneResponses, setConeResponses] = useState({
+    sConeResponse: [0],
+    mConeResponse: [0],
+    lConeResponse: [0],
+  })
   
   // **Initialize responseFileName state**
   const [responseFileName, setResponseFileName] = useState<string>("");
@@ -108,7 +126,9 @@ const AppContextProvider = ({ children }: { children: ReactNode }) => {
       coneResponseType, setConeResponseType,
       submitSwitch, setSubmitSwitch,
       wavelengthBounds, setWavelengthBounds,
-      responseFileName, setResponseFileName, // **Added**
+      responseFileName, setResponseFileName, 
+      wavelengths, setWavelengths,
+      coneResponses, setConeResponses,
     }}>
       {children}
     </AppContext.Provider>

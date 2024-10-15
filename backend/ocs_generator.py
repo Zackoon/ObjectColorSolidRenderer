@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 #%matplotlib widget
 
+import bisect
 import pandas as pd
 
 def read_cone_response(csv_file_path):
@@ -129,7 +130,7 @@ def generate_OCS(min_wavelength: int, max_wavelength: int, response_file_name: s
     
     csv_file_path = os.path.join(os.getcwd(), "res/uploads/", response_file_name)
     wavelengths, s_response, m_response, l_response = read_cone_response(csv_file_path)
-    
+    print("BRUH", wavelengths)
 
     if (wavelengths is None):
         # Cone responses of a typical trichromat.
@@ -138,6 +139,10 @@ def generate_OCS(min_wavelength: int, max_wavelength: int, response_file_name: s
         m_response = standard_trichromat.sensors[1].data
         l_response = standard_trichromat.sensors[2].data
     else:
+        # Update the indices to the wavelengths we care about
+        # start_idx = bisect.bisect_left(wavelengths, min_wavelength)
+        # end_idx = bisect.bisect_left(wavelengths, max_wavelength)
+        # s_response, m_response, l_response = s_response[start_idx:end_idx], m_response[start_idx:end_idx], l_response[start_idx:end_idx]
         print(f"Loaded response file: {response_file_name}")
         print(f"Wavelengths: {wavelengths}")
         print(f"Wavelengths: {len(wavelengths)}")
@@ -182,12 +187,13 @@ def generate_OCS(min_wavelength: int, max_wavelength: int, response_file_name: s
 
     tris = quads_to_triangles(faces)
     vertices, indices = triangles_to_vertices_indices(tris)
-    
+
     # Normalize vertices to [0, 1] range
     min_coords = np.min(vertices, axis=0)
     max_coords = np.max(vertices, axis=0)
     range_coords = max_coords - min_coords
-    normalized_vertices = (vertices - min_coords) / range_coords
+    # TODO: The bird color solid changes in shape when normalizing vs. not
+    normalized_vertices =  (vertices - min_coords) / range_coords
 
     # Ensure the colors array has enough values to match the number of vertices
     if len(colors) < len(vertices):
@@ -195,4 +201,9 @@ def generate_OCS(min_wavelength: int, max_wavelength: int, response_file_name: s
         missing_colors = [[1.0, 1.0, 1.0]] * num_missing_colors  # Create a list of white [R, G, B] for missing colors
         colors.extend(missing_colors)  # Extend the colors list with the missing colors
 
-    return normalized_vertices.tolist(), indices.tolist(), colors
+    if wavelengths is None:
+        wavelengths = list(range(min_wavelength, max_wavelength + 1, 3))
+    else:
+        wavelengths = wavelengths.tolist()
+
+    return normalized_vertices.tolist(), indices.tolist(), colors, wavelengths, s_response.tolist(), m_response.tolist(), l_response.tolist()

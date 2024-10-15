@@ -4,11 +4,12 @@ import React from "react";
 type DropdownContentProps = {
     children: React.ReactNode,
     open: boolean,
+    width?: number,
 }
 
-const paperStyle = (open: boolean) => {
+const paperStyle = (open: boolean, width: number) => {
     return { 
-        width: open ? 200 : 0, // Collapses the 
+        width: open ? width : 0, // Collapses the 
         borderRadius: 10, // Full circular shape
         zIndex: 999,
         transition: 'width 0.7s ease',
@@ -17,11 +18,11 @@ const paperStyle = (open: boolean) => {
     }
 }
 
-export default function DropdownContent({ children, open } : DropdownContentProps) {
+export default function DropdownContent({ children, open, width=200 } : DropdownContentProps) {
     return <>
         <Paper
             shadow="xl"
-            style={paperStyle(open)}
+            style={paperStyle(open, width)}
         >
             <Collapse in={open}>
                 {children}

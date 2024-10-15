@@ -44,7 +44,7 @@ def get_ocs_data():
     print(f"min: {min_wavelength}")
     print(f"response file name: {response_file_name}")
     print("generating ocs")
-    vertices, indices, colors = generate_OCS(min_wavelength, max_wavelength, response_file_name)
+    vertices, indices, colors, wavelengths, s_response, m_response, l_response = generate_OCS(min_wavelength, max_wavelength, response_file_name)
     
     #################### TODO REMOVE THIS ####################
     normals = vertices
@@ -60,7 +60,11 @@ def get_ocs_data():
         'normals': normals,
         'colors': colors,
         'vertexShader': get_vertex_shader(),
-        'fragmentShader': get_fragment_shader()
+        'fragmentShader': get_fragment_shader(),
+        'wavelengths': wavelengths,
+        's_response': s_response,
+        'm_response': m_response, 
+        'l_response': l_response
     })
 
 @teapot_routes.route('/get_teapot_data', methods=['GET'])

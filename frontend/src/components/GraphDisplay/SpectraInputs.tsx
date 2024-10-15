@@ -1,6 +1,6 @@
 // SpectraInputs.tsx
 
-import { Stack, Button, TextInput } from "@mantine/core";
+import { Stack, Button, TextInput, FileInput } from "@mantine/core";
 import { useState } from "react";
 import DropdownContent from "../Dropdown/DropdownContent";
 import DropdownButton from "../Dropdown/DropdownButton";
@@ -18,6 +18,8 @@ export default function SpectraInputs() {
     responseFileName,
     setResponseFileName, // **Using context's setter**
   } = useAppContext();
+
+  const [file, setFile] = useState<File | null>(null);
 
   const handleConeInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -46,6 +48,34 @@ export default function SpectraInputs() {
     console.log(wavelengthBounds);
     console.log('Response File Name:', responseFileName); // **Logging context's responseFileName**
     // You can send the form data to an API or process it here
+  };
+
+  const handleFileUpload = async () => {
+    if (!file) {
+      console.error('No file selected');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('http://localhost:5000/upload_file', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('File upload failed');
+      }
+
+      const result = await response.json();
+      console.log('File uploaded successfully:', result);
+      // Trigger a re-render or update of the OCS here if needed
+      setSubmitSwitch(-1 * submitSwitch);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
   };
 
   return (
@@ -87,34 +117,45 @@ export default function SpectraInputs() {
             />
             */}
             <TextInput
-              //label="Minimum Wavelength"
+              label="Minimum Wavelength"
               placeholder="Minimum Wavelength"
               name="min"
               type="number"
               value={wavelengthBounds.min}
               onChange={handleBoundsInputChange}
               required
-              mb="sm"
+              // mb="sm"
             />
             <TextInput
-              //label="Maximum Wavelength"
+              label="Maximum Wavelength"
               placeholder="Maximum Wavelength"
               name="max"
               type="number"
               value={wavelengthBounds.max}
               onChange={handleBoundsInputChange}
               required
-              mb="sm"
+              // mb="sm"
             />
             <TextInput
+              label="File Name"
               placeholder="Response File Name"
               name="responseFileName"
               type="text"
               value={responseFileName} // **Using context's value**
               onChange={handleResponseFileNameChange}
-              required
+              // required
+              // mb="sm"
+            />
+            <FileInput
+              label="File Upload"
+              placeholder="Choose file"
+              onChange={setFile}
+              accept=".txt,.csv"
               mb="sm"
             />
+            <Button onClick={handleFileUpload} disabled={!file} mb="sm">
+              Upload File
+            </Button>
             <Button type="submit" fullWidth>
               Submit
             </Button>
