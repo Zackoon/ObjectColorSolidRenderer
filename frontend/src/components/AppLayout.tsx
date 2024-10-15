@@ -1,49 +1,28 @@
-import { AppShell, Container, Grid, useMantineTheme, Text, Title, Skeleton, Stack, MantineTheme } from "@mantine/core";
+// AppLayout.tsx
+
+import { AppShell, Container, Grid, useMantineTheme, Title, Stack, MantineTheme } from "@mantine/core";
 import ObjectColorSolid from "./ObjectColorSolid";
 import SliceDisplay from "./SliceDisplay/SliceDisplay";
 import GraphDisplay from "./GraphDisplay/GraphDisplay";
 import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from "react";
 import React from 'react';
 
-
-    // console.log(
-    //     fetch('/ocs/helloworld')
-    //     .then((response) => response.json())
-    //     .then((data) => console.log(data))
-    //     .catch((error) => console.error('Error:', error))
-    // );
-
-    // const params = new URLSearchParams({
-    //     start: '10',
-    //     end: '20',
-    //   });
-      
-    // console.log(
-    //     fetch(`/ocs/range?${params.toString()}`)
-    //     .then((response) => response.json())
-    //     .then((data) => console.log(data))
-    //     .catch((error) => console.error('Error:', error))
-    // );
-
 const getWindowDimensions = () => {
-    const { innerWidth: width, innerHeight: height } = window
-    return {
-        width,
-        height
-    }
-}
+    const { innerWidth: width, innerHeight: height } = window;
+    return { width, height };
+};
 
 const useWindowDimensions = () => {
     const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
     useEffect(() => {
         const handleResize = () => {
-            setWindowDimensions(getWindowDimensions())
-        }
-        window.addEventListener("resize", handleResize)
-        return () => window.removeEventListener("resize", handleResize)
-    }, [])
-    return windowDimensions
-}
+            setWindowDimensions(getWindowDimensions());
+        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+    return windowDimensions;
+};
 
 const OCSStyle: React.CSSProperties = {
   position: 'absolute',
@@ -55,47 +34,47 @@ const OCSStyle: React.CSSProperties = {
   justifyContent: 'center',
   alignItems: 'center',
   zIndex: 1,
-}
+};
 
-const headerStyle = (theme: MantineTheme) => {
-  return {
-    backgroundColor: theme.colors.myColor[7],
-    color: 'white',
-    display: 'flex',
-    alignItems: 'center',
-  }
-}
+const headerStyle = (theme: MantineTheme) => ({
+  backgroundColor: theme.colors.myColor[7],
+  color: 'white',
+  display: 'flex',
+  alignItems: 'center',
+});
 
 type AppContextType = {
-  height: number,
-  sliceDimension: number,
-  setSliceDimension: Dispatch<SetStateAction<number>>,
+  height: number;
+  sliceDimension: number;
+  setSliceDimension: Dispatch<SetStateAction<number>>;
   conePeaks: {
-    sConePeak: number,
-    mConePeak: number,
-    lConePeak: number,
-  },
+    sConePeak: number;
+    mConePeak: number;
+    lConePeak: number;
+  };
   setConePeaks: Dispatch<SetStateAction<{
-    sConePeak: number,
-    mConePeak: number,
-    lConePeak: number,
-  }>>,
-  submitSwitch: number,
-  setSubmitSwitch: Dispatch<SetStateAction<number>>,
-  coneResponseType: string,
-  setConeResponseType: Dispatch<SetStateAction<string>>,
+    sConePeak: number;
+    mConePeak: number;
+    lConePeak: number;
+  }>>;
+  submitSwitch: number;
+  setSubmitSwitch: Dispatch<SetStateAction<number>>;
+  coneResponseType: string;
+  setConeResponseType: Dispatch<SetStateAction<string>>;
   wavelengthBounds: {
-    min: number,
-    max: number,
-  },
+    min: number;
+    max: number;
+  };
   setWavelengthBounds: Dispatch<SetStateAction<{
-    min: number,
-    max: number
-  }>>,
-}
+    min: number;
+    max: number;
+  }>>;
+  responseFileName: string; // **Added**
+  setResponseFileName: Dispatch<SetStateAction<string>>; // **Added**
+};
 
-// TODO: make the actual placeholder value rather than undefined since this may be messing with the form div in the bottom right
-export const AppContext = createContext<AppContextType | undefined>(undefined)
+// **Updated AppContext to include responseFileName**
+export const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const DEFAULT_S_PEAK = 455;
 export const DEFAULT_M_PEAK = 543;
@@ -110,13 +89,16 @@ const AppContextProvider = ({ children }: { children: ReactNode }) => {
     mConePeak: DEFAULT_M_PEAK, 
     lConePeak: DEFAULT_L_PEAK
   });
-  const [coneResponseType, setConeResponseType] = useState('Human Trichromat')
-  const [submitSwitch, setSubmitSwitch] = useState(1)  // Here just to indicate whether a submission occurred
-  const { width: _width, height } = useWindowDimensions(); 
+  const [coneResponseType, setConeResponseType] = useState('Human Trichromat');
+  const [submitSwitch, setSubmitSwitch] = useState(1);
+  const { height } = useWindowDimensions(); 
   const [wavelengthBounds, setWavelengthBounds] = useState({
     min: MIN_VISIBLE_WAVELENGTH,
     max: MAX_VISIBLE_WAVELENGTH
   });
+  
+  // **Initialize responseFileName state**
+  const [responseFileName, setResponseFileName] = useState<string>("");
 
   return (
     <AppContext.Provider value={{
@@ -125,15 +107,21 @@ const AppContextProvider = ({ children }: { children: ReactNode }) => {
       conePeaks, setConePeaks,
       coneResponseType, setConeResponseType,
       submitSwitch, setSubmitSwitch,
-      wavelengthBounds, setWavelengthBounds
-      }}>
-        {children}
+      wavelengthBounds, setWavelengthBounds,
+      responseFileName, // **Added**
+      setResponseFileName, // **Added**
+    }}>
+      {children}
     </AppContext.Provider>
-  )
-}
+  );
+};
 
-export const useAppContext = (): AppContextType | undefined => {
-  return useContext(AppContext);
+export const useAppContext = (): AppContextType => { // **Updated to ensure non-undefined return**
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppProvider');
+  }
+  return context;
 };
 
 export default function AppLayout() {
