@@ -5,6 +5,56 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 #%matplotlib widget
 
+import pandas as pd
+
+def read_cone_response(csv_file_path):
+    # First, try to read the file without a header
+
+    df = None
+    try:
+        df = pd.read_csv(csv_file_path, header=None)
+    except FileNotFoundError:
+        print("File not found!")
+        return None, None, None, None
+    except:
+        print("File not found!")
+        return None, None, None, None
+    
+    # Check if the first value in the file is numeric to determine if there's a header
+    try:
+        float(df.iloc[0, 0])  # Try converting the first value to a float
+        has_header = False     # If successful, there's no header
+    except ValueError:
+        has_header = True      # If it raises ValueError, there is a header
+    
+    # If there is a header, reload the CSV with the header
+    if has_header:
+        df = pd.read_csv(csv_file_path)
+    
+    # Check if we have 3 or 4 cones based on the number of columns
+    if len(df.columns) == 4:
+        df.columns = ['Wavelength', 'S-Response', 'M-Response', 'L-Response']
+    elif len(df.columns) == 5:
+        df.columns = ['Wavelength', 'S-Response', 'Q-Response', 'M-Response', 'L-Response']
+    
+    # Filter to keep only wavelengths between 390 and 700 nm
+    df = df[(df['Wavelength'] >= 390) & (df['Wavelength'] <= 700)]
+
+    # Check the step size
+    wavelength_step = df['Wavelength'].iloc[1] - df['Wavelength'].iloc[0]
+    
+    if wavelength_step == 1:
+        # Filter rows where the wavelength is a multiple of 10
+        df = df[df['Wavelength'] % 10 == 0]
+
+    # Extract the relevant columns as arrays
+    wavelengths = df['Wavelength'].to_numpy()
+    s_response = df['S-Response'].to_numpy()
+    m_response = df['M-Response'].to_numpy()
+    l_response = df['L-Response'].to_numpy()
+    
+    return wavelengths, s_response, m_response, l_response
+
 def quads_to_triangles(quads: np.ndarray) -> np.ndarray:
     """
     Convert an array of quads (n, 4, 3) to an array of triangles (2n, 3, 3).
@@ -74,17 +124,34 @@ def triangles_to_vertices_indices(triangles: np.ndarray):
     
     return vertices, indices
 
+import os
 def generate_OCS(min_wavelength: int, max_wavelength: int, response_file_name: str):
-    # Cone responses of a typical trichromat.
-    standard_trichromat = Observer.trichromat(np.arange(min_wavelength, max_wavelength + 1, 3))
+    
+    csv_file_path = os.path.join(os.getcwd(), "res/uploads/", response_file_name)
+    wavelengths, s_response, m_response, l_response = read_cone_response(csv_file_path)
+    
+
+    if (wavelengths is None):
+        # Cone responses of a typical trichromat.
+        standard_trichromat = Observer.trichromat(np.arange(min_wavelength, max_wavelength + 1, 3))
+        s_response = standard_trichromat.sensors[0].data
+        m_response = standard_trichromat.sensors[1].data
+        l_response = standard_trichromat.sensors[2].data
+    else:
+        print(f"Loaded response file: {response_file_name}")
+        print(f"Wavelengths: {wavelengths}")
+        print(f"Wavelengths: {len(wavelengths)}")
+        print(f"S-Response: {len(s_response)}")
+        print(f"M-Response: {len(m_response)}")
+        print(f"L-Response: {len(l_response)}")
 
     # Assumes an indicator reflectance function where R = 1 at a single wavelength and 0 elsewhere,
     # and an illumination 1 everywhere.
     # This represents equations (9), (10), (11), (12), (13).
-    points = np.vstack((standard_trichromat.sensors[0].data, 
-                        standard_trichromat.sensors[1].data, 
-                        standard_trichromat.sensors[2].data)).T
-    points /= np.sum(standard_trichromat.sensors[1].data)
+    points = np.vstack((s_response, 
+                        m_response, 
+                        l_response)).T
+    points /= np.sum(m_response)
 
     n = points.shape[0]
     vertices = np.zeros((n + 1, n, 3))
@@ -125,7 +192,7 @@ def generate_OCS(min_wavelength: int, max_wavelength: int, response_file_name: s
     # Ensure the colors array has enough values to match the number of vertices
     if len(colors) < len(vertices):
         num_missing_colors = len(vertices) - len(colors)
-        missing_colors = [[1.0, 0.0, 1.0]] * num_missing_colors  # Create a list of magenta [R, G, B] for missing colors
+        missing_colors = [[1.0, 1.0, 1.0]] * num_missing_colors  # Create a list of white [R, G, B] for missing colors
         colors.extend(missing_colors)  # Extend the colors list with the missing colors
 
     return normalized_vertices.tolist(), indices.tolist(), colors

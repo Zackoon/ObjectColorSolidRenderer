@@ -18,5 +18,5 @@ def calculate_normals(vertices, indices):
         
         for i in index:
             normals[i] += normal
-    
+
     return (normals / np.linalg.norm(normals, axis=1)[:, np.newaxis]).tolist()
