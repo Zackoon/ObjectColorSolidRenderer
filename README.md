@@ -1,3 +1,6 @@
+# Note
+We have moved to [this group repository!](https://github.com/Object-Color-Solid-Render). This repository will no longer getting updates for the time being.
+
 # ObjectColorSolidRenderer
 
 An object color solid renderer built with React and TypeScript, using Vite as the build tool.
